@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Mesin Pencari VSM{% endblock %}
+
+{% block content %}
+<div class="container">
+  <section class="hero-section">
+    <div class="hero-badge">VSM + TF-IDF Information Retrieval</div>
+    <h1 class="hero-title">Temukan Dokumen dengan Kemiripan Vektor</h1>
+    <p class="hero-subtitle">Sistem temu kembali informasi mandiri melakukan pencarian cepat pada {{ stats.n_docs }} dokumen dengan metode Vector Space Model &amp; TF-IDF.</p>
+
+    <form action="/search" method="get" class="search-form-hero" onsubmit="return validateSearch()">
+      <div class="search-input-group">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="q" name="q" class="search-input-hero" placeholder="Ketik kata kunci pencarian (misal: harga bbm, pendidikan digital)..." autofocus autocomplete="off">
+        <button type="submit" class="btn-search-hero">Cari Dokumen</button>
+      </div>
+    </form>
+
+    <div class="example-queries">
+      <span class="example-label">Contoh Kueri:</span>
+      <div class="tag-cloud">
+        {% for e in examples %}
+          <a href="/search?q={{ e|urlencode }}" class="tag-item">{{ e }}</a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📄</div>
+        <div class="stat-value">{{ "{:,}".format(stats.n_docs) }}</div>
+        <div class="stat-label">Total Dokumen</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🔤</div>
+        <div class="stat-value">{{ "{:,}".format(stats.n_terms) }}</div>
+        <div class="stat-label">Term Unik (Vocabulary)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-value">VSM + TF-IDF</div>
+        <div class="stat-label">Metode Pembobotan</div>
+      </div>
+    </section>
+  </section>
+</div>
+
+<script>
+function validateSearch() {
+  const q = document.getElementById("q").value.trim();
+  if (!q) {
+    alert("Masukkan kata kunci pencarian terlebih dahulu.");
+    return false;
+  }
+  return true;
+}
+</script>
+{% endblock %}

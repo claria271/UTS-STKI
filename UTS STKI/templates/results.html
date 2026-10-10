@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Hasil Pencarian: "{{ q }}" - Mesin Pencari VSM{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="search-header-bar">
+    <form action="/search" method="get" class="search-form-top">
+      <div class="search-input-group compact">
+        <span class="search-icon">🔍</span>
+        <input type="text" name="q" value="{{ q }}" class="search-input-compact" required placeholder="Ketik kata kunci...">
+        <button type="submit" class="btn-search-compact">Cari</button>
+      </div>
+    </form>
+  </div>
+
+  {% if total == 0 %}
+    <div class="empty-state">
+      <div class="empty-icon">🔎</div>
+      <h2>Tidak ada dokumen yang cocok untuk "{{ q }}"</h2>
+      <p>Cobalah langkah-langkah berikut:</p>
+      <ul>
+        <li>Periksa kembali ejaan kata kunci Anda</li>
+        <li>Gunakan kata dasar yang lebih umum</li>
+        <li>Gunakan kombinasi kata kunci lain</li>
+      </ul>
+      {% if tokens %}
+        <div class="tokens-badge-box mt-3">
+          <span class="meta-label">Token kueri hasil pra-proses:</span>
+          {% for t in tokens %}
+            <span class="token-badge">{{ t }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <a href="/" class="btn-back-home">Kembali ke Dashboard</a>
+    </div>
+  {% else %}
+    <div class="results-meta-card">
+      <div class="meta-info">
+        <span class="meta-highlight">{{ total }}</span> dokumen ditemukan dalam <span class="meta-highlight">{{ elapsed }}</span> detik.
+      </div>
+      {% if tokens %}
+        <div class="tokens-list">
+          <span class="meta-label">Token Kueri:</span>
+          {% for t in tokens %}
+            <span class="token-badge">{{ t }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="results-list">
+      {% for r in results %}
+        <article class="result-card">
+          <div class="result-header">
+            <span class="rank-badge">#{{ r.rank }}</span>
+            <span class="score-badge">Skor Cosine: {{ "%.4f"|format(r.score) }}</span>
+          </div>
+          <h2 class="result-title">
+            <a href="/doc/{{ r.doc_idx }}">{{ r.doc.judul }}</a>
+          </h2>
+          <div class="result-snippet">
+            {{ r.snippet }}
+          </div>
+          <div class="result-actions">
+            <a href="/doc/{{ r.doc_idx }}" class="btn-detail">Lihat Selengkapnya &rarr;</a>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+
+    {% if pages > 1 %}
+      <nav class="pagination-nav">
+        {% if page > 1 %}
+          <a href="/search?q={{ q|urlencode }}&page={{ page - 1 }}" class="page-link">&laquo; Sebelumnya</a>
+        {% else %}
+          <span class="page-link disabled">&laquo; Sebelumnya</span>
+        {% endif %}
+
+        <span class="page-status">Halaman {{ page }} dari {{ pages }}</span>
+
+        {% if page < pages %}
+          <a href="/search?q={{ q|urlencode }}&page={{ page + 1 }}" class="page-link">Berikutnya &raquo;</a>
+        {% else %}
+          <span class="page-link disabled">Berikutnya &raquo;</span>
+        {% endif %}
+      </nav>
+    {% endif %}
+  {% endif %}
+</div>
+{% endblock %}
